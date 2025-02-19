@@ -8,7 +8,12 @@ import { WINNING_COMBINATIONS } from "./winning-combinations.js";
 
 import GameOver from "./components/GameOver.jsx";
 
-const initialGameBoard = [
+const PLAYER = {
+  X: "Player 1",
+  O: "Player 2",
+};
+
+const INITIAL_GAME_BOARD = [
   [null, null, null],
   [null, null, null],
   [null, null, null],
@@ -24,19 +29,8 @@ function deriveActivePlayer(gameTurns) {
   return currentPlayer;
 }
 
-function App() {
-  const [player, setPlayer] = useState({
-    X: "Player 1",
-    O: "Player 2",
-  });
-  const [gameTurns, setGameTurns] = useState([]);
-  // const [playerSymbol, setPlayerSymbol] = useState("X");
-
-  const playerSymbol = deriveActivePlayer(gameTurns);
-
-  let winner;
-
-  let gameBoard = [...initialGameBoard.map((array) => [...array])];
+function deriveGameBoard(gameTurns) {
+  let gameBoard = [...INITIAL_GAME_BOARD.map((array) => [...array])];
 
   for (const turn of gameTurns) {
     const { square, player } = turn;
@@ -44,6 +38,12 @@ function App() {
 
     gameBoard[row][col] = player;
   }
+
+  return gameBoard;
+}
+
+function deriveWinner(gameBoard, player) {
+  let winner;
 
   for (const combination of WINNING_COMBINATIONS) {
     const firstSquare = gameBoard[combination[0].row][combination[0].column];
@@ -58,6 +58,20 @@ function App() {
       winner = player[firstSquare];
     }
   }
+
+  return winner;
+}
+
+function App() {
+  const [player, setPlayer] = useState(PLAYER);
+  const [gameTurns, setGameTurns] = useState([]);
+  // const [playerSymbol, setPlayerSymbol] = useState("X");
+
+  const playerSymbol = deriveActivePlayer(gameTurns);
+
+  const gameBoard = deriveGameBoard(gameTurns);
+
+  const winner = deriveWinner(gameBoard, player);
 
   let hasDraw = gameTurns.length === 9 && !winner;
 
@@ -79,13 +93,13 @@ function App() {
     setGameTurns([]);
   }
 
-  function handlePlayerChange(symbol, newName){
-    setPlayer((prevPlayer)=>{
+  function handlePlayerChange(symbol, newName) {
+    setPlayer((prevPlayer) => {
       return {
         ...prevPlayer,
-        [symbol]: newName
-      }
-    })
+        [symbol]: newName,
+      };
+    });
   }
 
   return (
